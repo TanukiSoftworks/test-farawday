@@ -2,46 +2,74 @@
 
 ## Como se usa?
 
-### Debes crear primero una red de docker, con el nombre que quieras.
-ejemplo:
-```
+### 1. Crea una red de Docker
+Crea una red personalizada para que los contenedores se comuniquen entre sí:
+```bash
 docker network create mi-red
 ```
-### luego, iniciar el modulo b en la red que acabas de crear.
-> asegurate de estar dentro de la carpeta de modulo b.
-ejemplo:
+
+### 2. Construye las imágenes Docker
+Primero debes construir las imágenes de ambos módulos.
+
+**Construir modulo-b:**
+```bash
+cd modulo-b
+docker build -t modulo-b:latest .
+cd ..
 ```
+
+**Construir modulo-a:**
+```bash
+cd modulo-a
+docker build -t modulo-a:latest .
+cd ..
+```
+
+### 3. Inicia los contenedores
+**Primero inicia modulo-b:**
+```bash
 docker run -d \
   --name modulo-b \
   --network mi-red \
   -p 8003:8003 \
   modulo-b:latest
 ```
-  ### luego, haces lo mismo con el modulo a.
-  > asegurate de estar dentro de la carpeta de modulo a.
-```
-  docker run -d \
+
+**Luego inicia modulo-a:**
+```bash
+docker run -d \
   --name modulo-a \
   --network mi-red \
   -p 8001:8001 \
   modulo-a:latest
 ```
-## Por ultimo, prueba el programa con:
-```
-  curl http://localhost:8001/enviar
-```
-## Y revisa los logs de el programa con: 
-  ```
-  docker logs modulo-a
-  docker logs modulo-b
+
+### 4. Prueba el programa
+```bash
+curl http://localhost:8001/enviar
 ```
 
+Deberías ver una respuesta JSON con el resultado del procesamiento.
 
-### Si ya no quieres tener las imagenes de los containers en tu pc, usa: 
-
+### 5. Revisa los logs
+```bash
+docker logs modulo-a
+docker logs modulo-b
 ```
+
+## Limpieza
+
+Si ya no quieres tener los contenedores e imágenes en tu PC:
+
+```bash
+# Detener y eliminar contenedores
 docker stop modulo-a modulo-b
 docker rm modulo-a modulo-b
+
+# Eliminar la red
 docker network rm mi-red
+
+# (Opcional) Eliminar las imágenes
+docker rmi modulo-a:latest modulo-b:latest
 ```
 
